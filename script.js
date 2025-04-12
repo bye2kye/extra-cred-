@@ -28,8 +28,8 @@ function generatePotentialEnergyData(reactants, products, deltaH) {
   const productEnergy = isEndothermic ? [deltaH] : [0 - Math.abs(deltaH)];
 
   return {
-      reactants: reactants,
-      products: products,
+      reactants: reactants.join(' + '), // Combine reactants into a single string
+      products: products.join(' + '), // Combine products into a single string
       reactantEnergy: reactantEnergy,
       activatedComplexEnergy: activatedComplexEnergy,
       productEnergy: productEnergy,
@@ -42,7 +42,7 @@ function generatePotentialEnergyGraph(data) {
   const ctx = document.getElementById('potentialEnergyDiagram').getContext('2d');
 
   const chartData = {
-      labels: [data.reactants.join(' + '), 'Activated Complex', data.products.join(' + ')],
+      labels: [data.reactants, 'Activated Complex', data.products],
       datasets: [{
           label: `Enthalpy Diagram (${data.isEndothermic ? 'Endothermic' : 'Exothermic'})`,
           data: [
@@ -92,7 +92,13 @@ function generatePotentialEnergyGraph(data) {
                               position: 'top',
                           }
                       }
-                  ]
+                  ],
+                  arrow: {
+                      color: 'black',
+                      borderColor: 'black',
+                      labelEnabled: true,
+                      content: data.isEndothermic ? 'Energy absorbed -> ΔH' : 'Energy released: ΔH',
+                  },
               }
           },
           scales: {
