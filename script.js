@@ -64,12 +64,13 @@ function generatePotentialEnergyGraph(data) {
             plugins: {
                 annotation: {
                     annotations: [
-                        // ΔH arrow and label
+                        // ΔH arrow
                         {
                             type: 'arrow',
+                            mode: 'vertical',
                             scaleID: 'y',
-                            value: data.isEndothermic ? Math.max(...data.productEnergy) : Math.min(...data.productEnergy),
-                            endValue: Math.max(...data.reactantEnergy), // Reactants' energy level
+                            value: data.isEndothermic ? Math.max(...data.reactantEnergy) : Math.max(...data.productEnergy),
+                            endValue: data.isEndothermic ? Math.max(...data.productEnergy) : Math.max(...data.reactantEnergy),
                             borderColor: 'black',
                             borderWidth: 2,
                             label: {
