@@ -10,13 +10,20 @@
 <body>
     <h1>Enthalpy Graph Generator</h1>
     <form id="chemistry-form">
-        <!-- Text box for balanced chemical equation -->
-        <label for="chemical-equation">Enter a Balanced Chemical Equation:</label>
-        <input type="text" id="chemical-equation" placeholder="e.g., H2 + O2 → H2O" required>
+        <!-- Text box for reactants -->
+        <label for="reactants">Enter Reactants:</label>
+        <input type="text" id="reactants" placeholder="e.g., H2, O2" required>
         
-        <!-- Text box for enthalpy change -->
+        <!-- Fixed arrow -->
+        <span>→</span>
+        
+        <!-- Text box for products -->
+        <label for="products">Enter Products:</label>
+        <input type="text" id="products" placeholder="e.g., H2O" required>
+        
+        <!-- Text box for enthalpy change with decimals up to 5 places -->
         <label for="enthalpy-change">Enter Enthalpy Change (ΔH):</label>
-        <input type="number" id="enthalpy-change" placeholder="e.g., -241.8 kJ/mol" required>
+        <input type="number" id="enthalpy-change" step="0.00001" placeholder="e.g., -241.6789" required>
         
         <button type="submit">Generate Graph</button>
     </form>

@@ -1,24 +1,21 @@
 document.getElementById('chemistry-form').addEventListener('submit', function(e) {
   e.preventDefault();
 
-  const equation = document.getElementById('chemical-equation').value;
+  const reactants = document.getElementById('reactants').value.split(',').map(item => item.trim());
+  const products = document.getElementById('products').value.split(',').map(item => item.trim());
   const enthalpyChange = parseFloat(document.getElementById('enthalpy-change').value);
 
-  const enthalpyData = calculateEnthalpy(equation, enthalpyChange);
+  const enthalpyData = calculateEnthalpy(reactants, products, enthalpyChange);
 
   // Generate the graph after calculation
   generateGraph(enthalpyData);
 });
 
 // Mock function to calculate enthalpy (this can be expanded later)
-function calculateEnthalpy(equation, deltaH) {
-  // This is just a mock function; real logic would parse the equation and calculate enthalpy
-  const reactants = ['H2', 'O2'];
-  const products = ['H2O'];
-
-  // Mock enthalpy values in kJ/mol (these can be real values from tables)
-  const enthalpyReactants = [0, 0];  // H2 and O2
-  const enthalpyProducts = [deltaH];  // Using the user input for the products
+function calculateEnthalpy(reactants, products, deltaH) {
+  // Mock enthalpy values for reactants, products, transition state, and reaction intermediate
+  const enthalpyReactants = Array(reactants.length).fill(0);  // H2 and O2
+  const enthalpyProducts = Array(products.length).fill(deltaH);  // Using the user input for the products
 
   const transitionState = [50];  // Activated complex (random value)
   const reactionIntermediate = [10];  // A simple intermediate value
