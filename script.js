@@ -66,19 +66,19 @@ function generatePotentialEnergyGraph(data) {
                     annotations: [
                         // ΔH arrow and label
                         {
-                            type: 'line',
-                            mode: 'vertical',
-                            scaleID: 'x',
-                            value: 1, // Index of "Activated Complex"
+                            type: 'arrow',
+                            scaleID: 'y',
+                            value: data.isEndothermic ? Math.max(...data.productEnergy) : Math.min(...data.productEnergy),
+                            endValue: Math.max(...data.reactantEnergy), // Reactants' energy level
                             borderColor: 'black',
-                            borderDash: [5, 5], // Dashed line
+                            borderWidth: 2,
                             label: {
                                 content: `ΔH = ${data.deltaH} kJ`,
                                 enabled: true,
-                                position: 'bottom',
+                                position: 'top',
                             }
                         },
-                        // Horizontal dashed line at 0 kJ
+                        // Dashed horizontal line at 0 kJ
                         {
                             type: 'line',
                             mode: 'horizontal',
