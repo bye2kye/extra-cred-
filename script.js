@@ -57,6 +57,7 @@ function generatePotentialEnergyGraph(data) {
             plugins: {
                 annotation: {
                     annotations: [
+                        // Dashed horizontal line at 0 kJ
                         {
                             type: 'line',
                             mode: 'horizontal',
@@ -96,7 +97,7 @@ function generatePotentialEnergyGraph(data) {
     const arrowEnd = chart.scales.y.getPixelForValue(data.productEnergy[0]);
     const arrowX = chart.scales.x.getPixelForValue(1); // Place arrow near "Activated Complex"
 
-    // Draw the arrow
+    // Draw the arrow line
     ctxOverlay.beginPath();
     ctxOverlay.moveTo(arrowX, arrowStart);
     ctxOverlay.lineTo(arrowX, arrowEnd);
