@@ -1,61 +1,68 @@
-const canvas = document.getElementById("enthalpyGraph");
-const ctx = canvas.getContext("2d");
+document.getElementById('chemistry-form').addEventListener('submit', function(e) {
+  e.preventDefault();
 
-document.getElementById("reaction-select").addEventListener("change", drawGraph);
-drawGraph();
+  const equation = document.getElementById('chemical-equation').value;
+  const enthalpyChange = parseFloat(document.getElementById('enthalpy-change').value);
 
-function drawGraph() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const enthalpyData = calculateEnthalpy(equation, enthalpyChange);
 
-  const reaction = document.getElementById("reaction-select").value;
+  // Generate the graph after calculation
+  generateGraph(enthalpyData);
+});
 
-  let points = [];
+// Mock function to calculate enthalpy (this can be expanded later)
+function calculateEnthalpy(equation, deltaH) {
+  // This is just a mock function; real logic would parse the equation and calculate enthalpy
+  const reactants = ['H2', 'O2'];
+  const products = ['H2O'];
 
-  if (reaction === "ch4") {
-    // CH4 + 2O2 → CO2 + 2H2O (exothermic)
-    points = [
-      { x: 50, y: 300, label: "Reactants" },
-      { x: 200, y: 100, label: "Activated Complex" },
-      { x: 350, y: 200, label: "Intermediate" },
-      { x: 500, y: 250, label: "Products" }
-    ];
-  } else if (reaction === "h2") {
-    // H2 + Cl2 → 2HCl (exothermic)
-    points = [
-      { x: 50, y: 280, label: "Reactants" },
-      { x: 200, y: 120, label: "Activated Complex" },
-      { x: 500, y: 180, label: "Products" }
-    ];
-  }
+  // Mock enthalpy values in kJ/mol (these can be real values from tables)
+  const enthalpyReactants = [0, 0];  // H2 and O2
+  const enthalpyProducts = [deltaH];  // Using the user input for the products
 
-  // Draw line
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
-  }
-  ctx.strokeStyle = "#007bff";
-  ctx.lineWidth = 3;
-  ctx.stroke();
+  const transitionState = [50];  // Activated complex (random value)
+  const reactionIntermediate = [10];  // A simple intermediate value
 
-  // Draw points and labels
-  points.forEach(point => {
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
-    ctx.fillStyle = "#ff0000";
-    ctx.fill();
-    ctx.fillStyle = "#000";
-    ctx.font = "14px Arial";
-    ctx.fillText(point.label, point.x - 30, point.y - 10);
-  });
+  return {
+      reactants: reactants,
+      products: products,
+      enthalpyReactants: enthalpyReactants,
+      enthalpyProducts: enthalpyProducts,
+      transitionState: transitionState,
+      reactionIntermediate: reactionIntermediate,
+  };
+}
 
-  // ΔH arrow
-  ctx.beginPath();
-  ctx.moveTo(points[0].x + 10, points[0].y);
-  ctx.lineTo(points[points.length - 1].x + 10, points[points.length - 1].y);
-  ctx.strokeStyle = "green";
-  ctx.setLineDash([5, 5]);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillText("ΔH", points[0].x + 20, (points[0].y + points[points.length - 1].y) / 2);
+function generateGraph(data) {
+  const ctx = document.getElementById('enthalpyGraph').getContext('2d');
+  
+  const chartData = {
+      labels: ['Reactants', 'Activated Complex', 'Reaction Intermediate', 'Products'],
+      datasets: [{
+          label: 'Enthalpy (kJ/mol)',
+          data: [
+              ...data.enthalpyReactants,
+              ...data.transitionState,
+              ...data.reactionIntermediate,
+              ...data.enthalpyProducts
+          ],
+          borderColor: 'rgba(75, 192, 192, 1)',
+          fill: false,
+          tension: 0.1
+      }]
+  };
+
+  const config = {
+      type: 'line',
+      data: chartData,
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  };
+
+  new Chart(ctx, config);
 }
