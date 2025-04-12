@@ -63,3 +63,4 @@ function generateGraph(data) {
 
   new Chart(ctx, config);
 }
+
