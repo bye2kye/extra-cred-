@@ -34,6 +34,7 @@ function generatePotentialEnergyData(reactants, products, deltaH) {
       activatedComplexEnergy: activatedComplexEnergy,
       productEnergy: productEnergy,
       isEndothermic: isEndothermic,
+      deltaH: Math.abs(deltaH), // Absolute value of ΔH
   };
 }
 
@@ -41,7 +42,7 @@ function generatePotentialEnergyGraph(data) {
   const ctx = document.getElementById('potentialEnergyDiagram').getContext('2d');
 
   const chartData = {
-      labels: ['Reactants', 'Activated Complex', 'Products'],
+      labels: [data.reactants.join(' + '), 'Activated Complex', data.products.join(' + ')],
       datasets: [{
           label: `Enthalpy Diagram (${data.isEndothermic ? 'Endothermic' : 'Exothermic'})`,
           data: [
@@ -86,7 +87,7 @@ function generatePotentialEnergyGraph(data) {
                           borderColor: 'purple',
                           borderWidth: 2,
                           label: {
-                              content: `ΔH (${data.isEndothermic ? 'Absorbed' : 'Released'})`,
+                              content: `ΔH = ${data.deltaH} kJ`,
                               enabled: true,
                               position: 'top',
                           }
