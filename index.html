@@ -3,26 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enthalpy Graph Generator</title>
+    <title>Dynamic Enthalpy Diagram</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Potential Energy Diagram</h1>
+    <h1>Enthalpy Diagram Generator</h1>
     <form id="chemistry-form">
-        <label for="reactants">Enter Reactants:</label>
+        <label for="reactants">Reactants:</label>
         <input type="text" id="reactants" placeholder="e.g., H2, O2" required>
         <span>→</span>
-        <label for="products">Enter Products:</label>
+        <label for="products">Products:</label>
         <input type="text" id="products" placeholder="e.g., H2O" required>
-        <label for="enthalpy-change">Enter Enthalpy Change (ΔH):</label>
+        <label for="enthalpy-change">Enthalpy Change (ΔH):</label>
         <input type="number" id="enthalpy-change" step="0.00001" placeholder="e.g., -241.6789" required>
-        <button type="submit">Generate Potential Energy Diagram</button>
+        <button type="submit">Generate Diagram</button>
     </form>
 
-    <div>
-        <canvas id="potentialEnergyDiagram"></canvas>
-    </div>
+    <canvas id="potentialEnergyDiagram"></canvas>
 
     <script src="script.js"></script>
 </body>
