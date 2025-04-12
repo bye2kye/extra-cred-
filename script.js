@@ -64,19 +64,28 @@ function generatePotentialEnergyGraph(data) {
             plugins: {
                 annotation: {
                     annotations: [
-                        // ΔH arrow
+                        // Arrow for ΔH
                         {
-                            type: 'arrow',
-                            mode: 'vertical',
+                            type: 'line',
+                            mode: 'horizontal',
                             scaleID: 'y',
-                            value: data.isEndothermic ? Math.max(...data.reactantEnergy) : Math.max(...data.productEnergy),
-                            endValue: data.isEndothermic ? Math.max(...data.productEnergy) : Math.max(...data.reactantEnergy),
+                            xMin: 0.5, // Start of the arrow (around reactants)
+                            xMax: 2.5, // End of the arrow (around products)
                             borderColor: 'black',
                             borderWidth: 2,
+                            arrowHeads: {
+                                end: {
+                                    enabled: true,
+                                    size: 8,
+                                    fill: true,
+                                    borderColor: 'black'
+                                }
+                            },
                             label: {
                                 content: `ΔH = ${data.deltaH} kJ`,
                                 enabled: true,
                                 position: 'top',
+                                color: 'black'
                             }
                         },
                         // Dashed horizontal line at 0 kJ
@@ -87,10 +96,6 @@ function generatePotentialEnergyGraph(data) {
                             value: 0, // Y-axis at 0 kJ
                             borderColor: 'red',
                             borderDash: [5, 5], // Dashed line
-                            label: {
-                                content: '0 kJ',
-                                enabled: false,
-                            }
                         }
                     ]
                 }
