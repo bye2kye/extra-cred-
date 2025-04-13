@@ -31,7 +31,7 @@ function generatePotentialEnergyData(reactants, products, deltaH) {
         productEnergy: productEnergy,
         isEndothermic: isEndothermic,
         deltaH: Math.abs(deltaH),
-        rawDeltaH: deltaH
+        rawDeltaH: deltaH // for proper label with sign
     };
 }
 
@@ -126,42 +126,36 @@ function drawDeltaHArrow(data) {
     const yScale = chartInstance.scales.y;
     const xScale = chartInstance.scales.x;
 
-    const arrowX = xScale.getPixelForValue(1); // Middle x-position
+    const arrowX = xScale.getPixelForValue(1); // middle (Activated Complex)
     const reactantY = yScale.getPixelForValue(data.reactantEnergy[0]);
     const productY = yScale.getPixelForValue(data.productEnergy[0]);
-
-    const startY = reactantY;
-    const endY = productY;
 
     ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     ctx.save();
 
-    // Draw the red arrow line
+    // Draw arrow line from reactant to product
     ctx.beginPath();
-    ctx.moveTo(arrowX, startY);
-    ctx.lineTo(arrowX, endY);
+    ctx.moveTo(arrowX, reactantY);
+    ctx.lineTo(arrowX, productY);
     ctx.strokeStyle = 'red';
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Determine arrowhead direction
-    const direction = endY > startY ? 1 : -1;
-    const headY = endY;
-
-    // Draw arrowhead
+    // Draw arrowhead at the product end
+    const direction = productY > reactantY ? 1 : -1;
     ctx.beginPath();
-    ctx.moveTo(arrowX, headY);
-    ctx.lineTo(arrowX - 5, headY - 10 * direction);
-    ctx.lineTo(arrowX + 5, headY - 10 * direction);
+    ctx.moveTo(arrowX, productY);
+    ctx.lineTo(arrowX - 5, productY - 10 * direction);
+    ctx.lineTo(arrowX + 5, productY - 10 * direction);
     ctx.closePath();
     ctx.fillStyle = 'red';
     ctx.fill();
 
-    // Draw label
+    // Label with ΔH (with sign)
     ctx.font = '16px Arial';
     ctx.fillStyle = 'red';
-    ctx.fillText(`ΔH = ${data.rawDeltaH} kJ`, arrowX + 10, (startY + endY) / 2);
+    const midY = (reactantY + productY) / 2;
+    ctx.fillText(`ΔH = ${data.rawDeltaH} kJ`, arrowX + 10, midY - 5);
 
     ctx.restore();
 }
-
