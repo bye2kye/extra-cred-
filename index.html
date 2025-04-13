@@ -1,29 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Enthalpy Diagram</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chemistry Enthalpy Diagram</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0"></script>
 </head>
 <body>
-    <h1>Potential Energy Diagram Generator</h1>
     <form id="chemistry-form">
         <label for="reactants">Reactants:</label>
-        <input type="text" id="reactants" placeholder="e.g., H2, O2" required>
-        <span>→</span>
+        <input type="text" id="reactants" required />
+
         <label for="products">Products:</label>
-        <input type="text" id="products" placeholder="e.g., H2O" required>
-        <label for="enthalpy-change">Enter Enthalpy Change (ΔH):</label>
-        <input type="number" id="enthalpy-change" step="0.00001" placeholder="e.g., -241.6789" required>
+        <input type="text" id="products" required />
+
+        <label for="enthalpy-change">ΔH (kJ):</label>
+        <input type="number" id="enthalpy-change" required />
+
         <button type="submit">Generate Diagram</button>
     </form>
 
-    <canvas id="potentialEnergyDiagram"></canvas>
+    <div style="position: relative; display: inline-block;">
+        <canvas id="potentialEnergyDiagram" width="800" height="500"></canvas>
+        <canvas id="overlayCanvas" width="800" height="500" style="position: absolute; top: 0; left: 0; pointer-events: none;"></canvas>
+    </div>
 
     <script src="script.js"></script>
 </body>
 </html>
-

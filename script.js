@@ -11,7 +11,6 @@ document.getElementById('chemistry-form').addEventListener('submit', function (e
     }
 
     const enthalpyData = generatePotentialEnergyData(reactants, products, enthalpyChange);
-
     generatePotentialEnergyGraph(enthalpyData);
 });
 
@@ -38,6 +37,11 @@ function generatePotentialEnergyData(reactants, products, deltaH) {
 function generatePotentialEnergyGraph(data) {
     const canvas = document.getElementById('potentialEnergyDiagram');
     const ctx = canvas.getContext('2d');
+
+    // Resize overlay canvas to match chart canvas
+    const overlayCanvas = document.getElementById('overlayCanvas');
+    overlayCanvas.width = canvas.width;
+    overlayCanvas.height = canvas.height;
 
     if (chartInstance) {
         chartInstance.destroy();
@@ -106,29 +110,28 @@ function generatePotentialEnergyGraph(data) {
             }
         },
         plugins: [Chart.registry.getPlugin('annotation')],
-        pluginsConfig: {}
     });
 
-    // Delay to ensure chart has rendered before drawing
     setTimeout(() => {
         drawDeltaHArrow(data);
     }, 300);
 }
 
 function drawDeltaHArrow(data) {
-    const canvas = document.getElementById('potentialEnergyDiagram');
-    const ctx = canvas.getContext('2d');
+    const overlayCanvas = document.getElementById('overlayCanvas');
+    const ctx = overlayCanvas.getContext('2d');
 
     if (!chartInstance) return;
 
     const yScale = chartInstance.scales.y;
     const xScale = chartInstance.scales.x;
 
-    const arrowX = xScale.getPixelForValue(1);
+    const arrowX = xScale.getPixelForValue(1); // Middle of graph
     const startY = yScale.getPixelForValue(data.reactantEnergy[0]);
     const endY = yScale.getPixelForValue(data.productEnergy[0]);
     const direction = data.isEndothermic ? -1 : 1;
 
+    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     ctx.save();
 
     // Draw arrow line
@@ -155,4 +158,3 @@ function drawDeltaHArrow(data) {
 
     ctx.restore();
 }
-
