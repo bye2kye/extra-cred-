@@ -11,7 +11,6 @@ document.getElementById('chemistry-form').addEventListener('submit', function (e
     }
 
     const enthalpyData = generatePotentialEnergyData(reactants, products, enthalpyChange);
-
     generatePotentialEnergyGraph(enthalpyData);
 });
 
@@ -36,7 +35,12 @@ function generatePotentialEnergyData(reactants, products, deltaH) {
 function generatePotentialEnergyGraph(data) {
     const ctx = document.getElementById('potentialEnergyDiagram').getContext('2d');
 
-    const chart = new Chart(ctx, {
+    // Destroy previous chart if it exists
+    if (window.enthalpyChart) {
+        window.enthalpyChart.destroy();
+    }
+
+    window.enthalpyChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: [data.reactants, 'Activated Complex', data.products],
@@ -48,25 +52,31 @@ function generatePotentialEnergyGraph(data) {
                     ...data.productEnergy
                 ],
                 borderColor: data.isEndothermic ? 'blue' : 'green',
+                pointBackgroundColor: 'black',
+                pointRadius: 4,
                 fill: false,
                 tension: 0.4,
             }]
         },
         options: {
             responsive: true,
+            animation: false,
             plugins: {
                 annotation: {
                     annotations: [
-                        // Dashed horizontal line at 0 kJ
                         {
                             type: 'line',
                             mode: 'horizontal',
                             scaleID: 'y',
                             value: 0,
-                            borderColor: 'red',
-                            borderDash: [5, 5],
+                            borderColor: 'black',
+                            borderWidth: 2,
+                            borderDash: [5, 5]
                         }
                     ]
+                },
+                tooltip: {
+                    enabled: true
                 }
             },
             scales: {
@@ -84,41 +94,45 @@ function generatePotentialEnergyGraph(data) {
                     },
                 },
             },
-        }
+            pluginsCustom: {
+                afterDraw: chart => {
+                    const ctx = chart.ctx;
+                    const x = chart.scales.x.getPixelForValue(1); // Middle point (Activated Complex)
+                    const startY = chart.scales.y.getPixelForValue(data.reactantEnergy[0]);
+                    const endY = chart.scales.y.getPixelForValue(data.productEnergy[0]);
+                    const arrowDirection = data.isEndothermic ? -1 : 1;
+
+                    // Arrow line
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(x, startY);
+                    ctx.lineTo(x, endY);
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // Arrowhead
+                    ctx.beginPath();
+                    ctx.moveTo(x, endY);
+                    ctx.lineTo(x - 5, endY + 10 * arrowDirection);
+                    ctx.lineTo(x + 5, endY + 10 * arrowDirection);
+                    ctx.closePath();
+                    ctx.fillStyle = 'red';
+                    ctx.fill();
+
+                    // Label
+                    ctx.font = '16px Arial';
+                    ctx.fillStyle = 'red';
+                    ctx.fillText(`ΔH = ${data.deltaH} kJ`, x + 10, (startY + endY) / 2);
+                    ctx.restore();
+                }
+            }
+        },
+        plugins: [{
+            id: 'custom-arrow-plugin',
+            afterDraw(chart) {
+                chart.options.pluginsCustom?.afterDraw?.(chart);
+            }
+        }]
     });
-
-    // Manually draw the ΔH arrow
-    const canvas = document.getElementById('potentialEnergyDiagram');
-    const ctxOverlay = canvas.getContext('2d');
-    ctxOverlay.save();
-
-    // Arrow properties
-    const arrowStart = chart.scales.y.getPixelForValue(data.reactantEnergy[0]);
-    const arrowEnd = chart.scales.y.getPixelForValue(data.productEnergy[0]);
-    const arrowX = chart.scales.x.getPixelForValue(1); // Place arrow near "Activated Complex"
-
-    // Draw the arrow line
-    ctxOverlay.beginPath();
-    ctxOverlay.moveTo(arrowX, arrowStart);
-    ctxOverlay.lineTo(arrowX, arrowEnd);
-    ctxOverlay.strokeStyle = 'black';
-    ctxOverlay.lineWidth = 2;
-    ctxOverlay.stroke();
-
-    // Draw arrowhead (pointing up or down depending on ΔH)
-    const arrowDirection = data.isEndothermic ? -1 : 1; // Up for endothermic, down for exothermic
-    ctxOverlay.beginPath();
-    ctxOverlay.moveTo(arrowX, arrowEnd);
-    ctxOverlay.lineTo(arrowX - 5, arrowEnd + 10 * arrowDirection);
-    ctxOverlay.lineTo(arrowX + 5, arrowEnd + 10 * arrowDirection);
-    ctxOverlay.closePath();
-    ctxOverlay.fillStyle = 'black';
-    ctxOverlay.fill();
-
-    // Label ΔH
-    ctxOverlay.font = '16px Arial';
-    ctxOverlay.fillStyle = 'black';
-    ctxOverlay.fillText(`ΔH = ${data.deltaH} kJ`, arrowX + 10, (arrowStart + arrowEnd) / 2);
-
-    ctxOverlay.restore();
 }
