@@ -126,37 +126,42 @@ function drawDeltaHArrow(data) {
     const yScale = chartInstance.scales.y;
     const xScale = chartInstance.scales.x;
 
-    const arrowX = xScale.getPixelForValue(1);
-    const startY = yScale.getPixelForValue(data.reactantEnergy[0]);
-    const endY = yScale.getPixelForValue(data.productEnergy[0]);
-    const isEndo = data.isEndothermic;
+    const arrowX = xScale.getPixelForValue(1); // Middle x-position
+    const reactantY = yScale.getPixelForValue(data.reactantEnergy[0]);
+    const productY = yScale.getPixelForValue(data.productEnergy[0]);
+
+    const startY = reactantY;
+    const endY = productY;
 
     ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     ctx.save();
 
-    // Draw arrow line
+    // Draw the red arrow line
     ctx.beginPath();
-    ctx.moveTo(arrowX, isEndo ? startY : endY);
-    ctx.lineTo(arrowX, isEndo ? endY : startY);
+    ctx.moveTo(arrowX, startY);
+    ctx.lineTo(arrowX, endY);
     ctx.strokeStyle = 'red';
     ctx.lineWidth = 2;
     ctx.stroke();
 
+    // Determine arrowhead direction
+    const direction = endY > startY ? 1 : -1;
+    const headY = endY;
+
     // Draw arrowhead
     ctx.beginPath();
-    const headY = isEndo ? endY : startY;
-    const direction = isEndo ? -1 : 1;
     ctx.moveTo(arrowX, headY);
-    ctx.lineTo(arrowX - 5, headY + 10 * direction);
-    ctx.lineTo(arrowX + 5, headY + 10 * direction);
+    ctx.lineTo(arrowX - 5, headY - 10 * direction);
+    ctx.lineTo(arrowX + 5, headY - 10 * direction);
     ctx.closePath();
     ctx.fillStyle = 'red';
     ctx.fill();
 
-    // Label
+    // Draw label
     ctx.font = '16px Arial';
     ctx.fillStyle = 'red';
     ctx.fillText(`ΔH = ${data.rawDeltaH} kJ`, arrowX + 10, (startY + endY) / 2);
 
     ctx.restore();
 }
+
