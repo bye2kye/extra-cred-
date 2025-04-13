@@ -41,7 +41,7 @@ canvas {
   background: #fff;
   border: 1px solid #ccc;
   margin-top: 20px;
-  width: 75%; /* Adjusted size */
+  width: 75%;
   max-width: 600px;
-  height: 300px; /* Adjusted size */
+  height: 300px;
 }

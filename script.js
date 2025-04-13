@@ -11,8 +11,11 @@ document.getElementById('chemistry-form').addEventListener('submit', function (e
     }
 
     const enthalpyData = generatePotentialEnergyData(reactants, products, enthalpyChange);
+
     generatePotentialEnergyGraph(enthalpyData);
 });
+
+let chartInstance = null;
 
 function generatePotentialEnergyData(reactants, products, deltaH) {
     const isEndothermic = deltaH > 0;
@@ -33,14 +36,14 @@ function generatePotentialEnergyData(reactants, products, deltaH) {
 }
 
 function generatePotentialEnergyGraph(data) {
-    const ctx = document.getElementById('potentialEnergyDiagram').getContext('2d');
+    const canvas = document.getElementById('potentialEnergyDiagram');
+    const ctx = canvas.getContext('2d');
 
-    // Destroy previous chart if it exists
-    if (window.enthalpyChart) {
-        window.enthalpyChart.destroy();
+    if (chartInstance) {
+        chartInstance.destroy();
     }
 
-    window.enthalpyChart = new Chart(ctx, {
+    chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: [data.reactants, 'Activated Complex', data.products],
@@ -52,87 +55,94 @@ function generatePotentialEnergyGraph(data) {
                     ...data.productEnergy
                 ],
                 borderColor: data.isEndothermic ? 'blue' : 'green',
-                pointBackgroundColor: 'black',
-                pointRadius: 4,
+                pointBackgroundColor: data.isEndothermic ? 'blue' : 'green',
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                borderWidth: 3,
                 fill: false,
                 tension: 0.4,
             }]
         },
         options: {
             responsive: true,
-            animation: false,
             plugins: {
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function (context) {
+                            return `Ep = ${context.raw} kJ`;
+                        }
+                    }
+                },
+                legend: {
+                    display: true
+                },
                 annotation: {
-                    annotations: [
-                        {
+                    annotations: {
+                        zeroLine: {
                             type: 'line',
-                            mode: 'horizontal',
-                            scaleID: 'y',
-                            value: 0,
+                            yMin: 0,
+                            yMax: 0,
                             borderColor: 'black',
                             borderWidth: 2,
-                            borderDash: [5, 5]
+                            borderDash: [5, 5],
+                            label: {
+                                enabled: false
+                            }
                         }
-                    ]
-                },
-                tooltip: {
-                    enabled: true
+                    }
                 }
             },
             scales: {
                 y: {
-                    beginAtZero: true,
                     title: {
                         display: true,
                         text: 'Ep (kJ)',
-                    },
+                    }
                 },
                 x: {
                     title: {
                         display: true,
                         text: 'Reaction Progress',
-                    },
-                },
-            },
-            pluginsCustom: {
-                afterDraw: chart => {
-                    const ctx = chart.ctx;
-                    const x = chart.scales.x.getPixelForValue(1); // Middle point (Activated Complex)
-                    const startY = chart.scales.y.getPixelForValue(data.reactantEnergy[0]);
-                    const endY = chart.scales.y.getPixelForValue(data.productEnergy[0]);
-                    const arrowDirection = data.isEndothermic ? -1 : 1;
-
-                    // Arrow line
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.moveTo(x, startY);
-                    ctx.lineTo(x, endY);
-                    ctx.strokeStyle = 'red';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-
-                    // Arrowhead
-                    ctx.beginPath();
-                    ctx.moveTo(x, endY);
-                    ctx.lineTo(x - 5, endY + 10 * arrowDirection);
-                    ctx.lineTo(x + 5, endY + 10 * arrowDirection);
-                    ctx.closePath();
-                    ctx.fillStyle = 'red';
-                    ctx.fill();
-
-                    // Label
-                    ctx.font = '16px Arial';
-                    ctx.fillStyle = 'red';
-                    ctx.fillText(`ΔH = ${data.deltaH} kJ`, x + 10, (startY + endY) / 2);
-                    ctx.restore();
+                    }
                 }
             }
         },
-        plugins: [{
-            id: 'custom-arrow-plugin',
-            afterDraw(chart) {
-                chart.options.pluginsCustom?.afterDraw?.(chart);
-            }
-        }]
+        plugins: [Chart.registry.getPlugin('annotation')]
     });
+
+    // Draw ΔH arrow on overlay
+    setTimeout(() => {
+        const arrowStart = chartInstance.scales.y.getPixelForValue(data.reactantEnergy[0]);
+        const arrowEnd = chartInstance.scales.y.getPixelForValue(data.productEnergy[0]);
+        const arrowX = chartInstance.scales.x.getPixelForValue(1);
+
+        const ctxOverlay = canvas.getContext('2d');
+        ctxOverlay.save();
+
+        // Draw red ΔH arrow line
+        ctxOverlay.beginPath();
+        ctxOverlay.moveTo(arrowX, arrowStart);
+        ctxOverlay.lineTo(arrowX, arrowEnd);
+        ctxOverlay.strokeStyle = 'red';
+        ctxOverlay.lineWidth = 2;
+        ctxOverlay.stroke();
+
+        // Draw arrowhead
+        const arrowDir = data.isEndothermic ? -1 : 1;
+        ctxOverlay.beginPath();
+        ctxOverlay.moveTo(arrowX, arrowEnd);
+        ctxOverlay.lineTo(arrowX - 5, arrowEnd + 10 * arrowDir);
+        ctxOverlay.lineTo(arrowX + 5, arrowEnd + 10 * arrowDir);
+        ctxOverlay.closePath();
+        ctxOverlay.fillStyle = 'red';
+        ctxOverlay.fill();
+
+        // Label
+        ctxOverlay.font = '16px Arial';
+        ctxOverlay.fillStyle = 'red';
+        ctxOverlay.fillText(`ΔH = ${data.deltaH} kJ`, arrowX + 10, (arrowStart + arrowEnd) / 2);
+
+        ctxOverlay.restore();
+    }, 300); // Delay to ensure chart has rendered
 }
