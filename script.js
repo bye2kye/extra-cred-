@@ -31,6 +31,7 @@ function generatePotentialEnergyData(reactants, products, deltaH) {
         productEnergy: productEnergy,
         isEndothermic: isEndothermic,
         deltaH: Math.abs(deltaH),
+        rawDeltaH: deltaH
     };
 }
 
@@ -38,7 +39,6 @@ function generatePotentialEnergyGraph(data) {
     const canvas = document.getElementById('potentialEnergyDiagram');
     const ctx = canvas.getContext('2d');
 
-    // Resize overlay canvas to match chart canvas
     const overlayCanvas = document.getElementById('overlayCanvas');
     overlayCanvas.width = canvas.width;
     overlayCanvas.height = canvas.height;
@@ -126,35 +126,37 @@ function drawDeltaHArrow(data) {
     const yScale = chartInstance.scales.y;
     const xScale = chartInstance.scales.x;
 
-    const arrowX = xScale.getPixelForValue(1); // Middle of graph
+    const arrowX = xScale.getPixelForValue(1);
     const startY = yScale.getPixelForValue(data.reactantEnergy[0]);
     const endY = yScale.getPixelForValue(data.productEnergy[0]);
-    const direction = data.isEndothermic ? -1 : 1;
+    const isEndo = data.isEndothermic;
 
     ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     ctx.save();
 
     // Draw arrow line
     ctx.beginPath();
-    ctx.moveTo(arrowX, startY);
-    ctx.lineTo(arrowX, endY);
+    ctx.moveTo(arrowX, isEndo ? startY : endY);
+    ctx.lineTo(arrowX, isEndo ? endY : startY);
     ctx.strokeStyle = 'red';
     ctx.lineWidth = 2;
     ctx.stroke();
 
     // Draw arrowhead
     ctx.beginPath();
-    ctx.moveTo(arrowX, endY);
-    ctx.lineTo(arrowX - 5, endY + 10 * direction);
-    ctx.lineTo(arrowX + 5, endY + 10 * direction);
+    const headY = isEndo ? endY : startY;
+    const direction = isEndo ? -1 : 1;
+    ctx.moveTo(arrowX, headY);
+    ctx.lineTo(arrowX - 5, headY + 10 * direction);
+    ctx.lineTo(arrowX + 5, headY + 10 * direction);
     ctx.closePath();
     ctx.fillStyle = 'red';
     ctx.fill();
 
-    // Draw label
+    // Label
     ctx.font = '16px Arial';
     ctx.fillStyle = 'red';
-    ctx.fillText(`ΔH = ${data.deltaH} kJ`, arrowX + 10, (startY + endY) / 2);
+    ctx.fillText(`ΔH = ${data.rawDeltaH} kJ`, arrowX + 10, (startY + endY) / 2);
 
     ctx.restore();
 }
