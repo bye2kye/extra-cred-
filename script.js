@@ -55,7 +55,7 @@ function generatePotentialEnergyGraph(data) {
                     ...data.productEnergy
                 ],
                 borderColor: data.isEndothermic ? 'blue' : 'green',
-                pointBackgroundColor: data.isEndothermic ? 'blue' : 'green',
+                pointBackgroundColor: 'black',
                 pointRadius: 5,
                 pointHoverRadius: 7,
                 borderWidth: 3,
@@ -86,9 +86,6 @@ function generatePotentialEnergyGraph(data) {
                             borderColor: 'black',
                             borderWidth: 2,
                             borderDash: [5, 5],
-                            label: {
-                                enabled: false
-                            }
                         }
                     }
                 }
@@ -108,41 +105,53 @@ function generatePotentialEnergyGraph(data) {
                 }
             }
         },
-        plugins: [Chart.registry.getPlugin('annotation')]
+        plugins: [Chart.registry.getPlugin('annotation')],
+        pluginsConfig: {}
     });
 
-    // Draw ΔH arrow on overlay
+    // Delay to ensure chart has rendered before drawing
     setTimeout(() => {
-        const arrowStart = chartInstance.scales.y.getPixelForValue(data.reactantEnergy[0]);
-        const arrowEnd = chartInstance.scales.y.getPixelForValue(data.productEnergy[0]);
-        const arrowX = chartInstance.scales.x.getPixelForValue(1);
+        drawDeltaHArrow(data);
+    }, 300);
+}
 
-        const ctxOverlay = canvas.getContext('2d');
-        ctxOverlay.save();
+function drawDeltaHArrow(data) {
+    const canvas = document.getElementById('potentialEnergyDiagram');
+    const ctx = canvas.getContext('2d');
 
-        // Draw red ΔH arrow line
-        ctxOverlay.beginPath();
-        ctxOverlay.moveTo(arrowX, arrowStart);
-        ctxOverlay.lineTo(arrowX, arrowEnd);
-        ctxOverlay.strokeStyle = 'red';
-        ctxOverlay.lineWidth = 2;
-        ctxOverlay.stroke();
+    if (!chartInstance) return;
 
-        // Draw arrowhead
-        const arrowDir = data.isEndothermic ? -1 : 1;
-        ctxOverlay.beginPath();
-        ctxOverlay.moveTo(arrowX, arrowEnd);
-        ctxOverlay.lineTo(arrowX - 5, arrowEnd + 10 * arrowDir);
-        ctxOverlay.lineTo(arrowX + 5, arrowEnd + 10 * arrowDir);
-        ctxOverlay.closePath();
-        ctxOverlay.fillStyle = 'red';
-        ctxOverlay.fill();
+    const yScale = chartInstance.scales.y;
+    const xScale = chartInstance.scales.x;
 
-        // Label
-        ctxOverlay.font = '16px Arial';
-        ctxOverlay.fillStyle = 'red';
-        ctxOverlay.fillText(`ΔH = ${data.deltaH} kJ`, arrowX + 10, (arrowStart + arrowEnd) / 2);
+    const arrowX = xScale.getPixelForValue(1);
+    const startY = yScale.getPixelForValue(data.reactantEnergy[0]);
+    const endY = yScale.getPixelForValue(data.productEnergy[0]);
+    const direction = data.isEndothermic ? -1 : 1;
 
-        ctxOverlay.restore();
-    }, 300); // Delay to ensure chart has rendered
+    ctx.save();
+
+    // Draw arrow line
+    ctx.beginPath();
+    ctx.moveTo(arrowX, startY);
+    ctx.lineTo(arrowX, endY);
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Draw arrowhead
+    ctx.beginPath();
+    ctx.moveTo(arrowX, endY);
+    ctx.lineTo(arrowX - 5, endY + 10 * direction);
+    ctx.lineTo(arrowX + 5, endY + 10 * direction);
+    ctx.closePath();
+    ctx.fillStyle = 'red';
+    ctx.fill();
+
+    // Draw label
+    ctx.font = '16px Arial';
+    ctx.fillStyle = 'red';
+    ctx.fillText(`ΔH = ${data.deltaH} kJ`, arrowX + 10, (startY + endY) / 2);
+
+    ctx.restore();
 }
