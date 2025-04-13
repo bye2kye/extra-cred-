@@ -133,7 +133,7 @@ function drawDeltaHArrow(data) {
     ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     ctx.save();
 
-    // Draw arrow line from reactant to product
+    // arrowline
     ctx.beginPath();
     ctx.moveTo(arrowX, reactantY);
     ctx.lineTo(arrowX, productY);
@@ -141,7 +141,7 @@ function drawDeltaHArrow(data) {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Draw arrowhead at the product end
+    // arrowhead
     const direction = productY > reactantY ? 1 : -1;
     ctx.beginPath();
     ctx.moveTo(arrowX, productY);
@@ -151,11 +151,22 @@ function drawDeltaHArrow(data) {
     ctx.fillStyle = 'red';
     ctx.fill();
 
-    // Label with ΔH (with sign)
+    // ΔH labelled
     ctx.font = '16px Arial';
     ctx.fillStyle = 'red';
     const midY = (reactantY + productY) / 2;
     ctx.fillText(`ΔH = ${data.rawDeltaH} kJ`, arrowX + 10, midY - 5);
 
     ctx.restore();
+}
+
+// light and dark mode
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const themeButton = document.getElementById('toggleTheme');
+    if (document.body.classList.contains('dark-mode')) {
+        themeButton.innerHTML = "🌞"; // light mode
+    } else {
+        themeButton.innerHTML = "🌙"; // dark mode
+    }
 }
